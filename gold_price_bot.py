@@ -9,14 +9,22 @@ bot = telegram.Bot(token=BOT_TOKEN)
 # Flask app setup
 app = Flask(__name__)
 
+# مسیر GET برای روت
+@app.route("/", methods=["GET"])
+def home():
+    return "Server is live!"
+
+# مسیر POST برای وب‌هوک
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
-    # Process the incoming Telegram message
     update = telegram.Update.de_json(request.get_json(force=True), bot)
     chat_id = update.message.chat.id
     message = update.message.text
 
-    # Reply to the received message
+    # چاپ پیام دریافتی
+    print(f"Received message: {message}")
+
+    # پاسخ به پیام
     bot.send_message(chat_id=chat_id, text=f"You said: {message}")
     return "ok"
 
@@ -25,8 +33,8 @@ if __name__ == "__main__":
     webhook_url = f"https://{os.environ['RENDER_EXTERNAL_URL']}/{BOT_TOKEN}"
     bot.set_webhook(url=webhook_url)
     
-    # Start the Flask server using the proper port
-    port = int(os.environ.get("PORT", 5000))  # Automatically use the port from Render
+    # Start the Flask server using gunicorn for production
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
 import requests
 import telegram
