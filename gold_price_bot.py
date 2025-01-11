@@ -1,6 +1,9 @@
 from flask import Flask, request
 import telegram
 import os
+import requests
+from datetime import datetime
+import time
 
 # Bot Token from BotFather
 BOT_TOKEN = "8150573080:AAGdUWOhr2C_tEOKc5up5cqarMrE-Om47p0"
@@ -37,10 +40,6 @@ if __name__ == "__main__":
     # Start the Flask server using gunicorn for production
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-import requests
-import telegram
-from datetime import datetime
-import time
 
 # Telegram Bot Token and Channel ID
 TELEGRAM_BOT_TOKEN = '8150573080:AAGdUWOhr2C_tEOKc5up5cqarMrE-Om47p0'
