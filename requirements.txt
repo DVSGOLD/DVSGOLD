@@ -1,4 +1,3 @@
-requirements.txt
 from flask import Flask, request
 import telegram
 import os
