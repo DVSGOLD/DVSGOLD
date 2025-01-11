@@ -9,28 +9,23 @@ bot = telegram.Bot(token=BOT_TOKEN)
 # Flask app setup
 app = Flask(__name__)
 
-# مسیر GET برای روت
-@app.route("/", methods=["GET"])
-def home():
-    return "Server is live!"
-
-# مسیر POST برای وب‌هوک
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
+    # Process the incoming Telegram message
     update = telegram.Update.de_json(request.get_json(force=True), bot)
     chat_id = update.message.chat.id
     message = update.message.text
 
-    # چاپ پیام دریافتی
+    # Print the received message for debugging
     print(f"Received message: {message}")
 
-    # پاسخ به پیام
+    # Reply to the received message
     bot.send_message(chat_id=chat_id, text=f"You said: {message}")
     return "ok"
 
 if __name__ == "__main__":
     # Set webhook for Telegram
-    webhook_url = f"https://{os.environ['RENDER_EXTERNAL_URL']}/{BOT_TOKEN}"
+    webhook_url = f"https://gold-price-bot.onrender.com/{BOT_TOKEN}"
     bot.set_webhook(url=webhook_url)
     
     # Start the Flask server using gunicorn for production
