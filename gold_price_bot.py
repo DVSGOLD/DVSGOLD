@@ -9,6 +9,12 @@ bot = telegram.Bot(token=BOT_TOKEN)
 # Flask app setup
 app = Flask(__name__)
 
+# مسیر / برای پاسخ به درخواست‌های GET
+@app.route("/", methods=["GET"])
+def home():
+    return "Server is running"
+
+# مسیر وب‌هوک برای پردازش پیام‌های تلگرام
 @app.route(f"/{BOT_TOKEN}", methods=["POST"])
 def webhook():
     # Process the incoming Telegram message
@@ -31,6 +37,7 @@ if __name__ == "__main__":
     # Start the Flask server using gunicorn for production
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 import requests
 import telegram
 from datetime import datetime
