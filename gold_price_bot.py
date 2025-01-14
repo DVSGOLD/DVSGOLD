@@ -1,113 +1,368 @@
-from flask import Flask, request
-import telegram
-import os
-import requests
-from datetime import datetime
-import time
-
-# Bot Token from BotFather
-BOT_TOKEN = "8150573080:AAGdUWOhr2C_tEOKc5up5cqarMrE-Om47p0"
-bot = telegram.Bot(token=BOT_TOKEN)
-
-# Flask app setup
-app = Flask(__name__)
-
-# مسیر / برای پاسخ به درخواست‌های GET
-@app.route("/", methods=["GET"])
-def home():
-    return "Server is running"
-
-# مسیر وب‌هوک برای پردازش پیام‌های تلگرام
-@app.route(f"/{BOT_TOKEN}", methods=["POST"])
-def webhook():
-    # Process the incoming Telegram message
-    update = telegram.Update.de_json(request.get_json(force=True), bot)
-    chat_id = update.message.chat.id
-    message = update.message.text
-
-    # Print the received message for debugging
-    print(f"Received message: {message}")
-
-    # Reply to the received message
-    bot.send_message(chat_id=chat_id, text=f"You said: {message}")
-    return "ok"
-
-if __name__ == "__main__":
-    # Set webhook for Telegram
-    webhook_url = f"https://gold-price-bot.onrender.com/{BOT_TOKEN}"
-    bot.set_webhook(url=webhook_url)
-    
-    # Start the Flask server using gunicorn for production
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
-# Telegram Bot Token and Channel ID
-TELEGRAM_BOT_TOKEN = '8150573080:AAGdUWOhr2C_tEOKc5up5cqarMrE-Om47p0'
-TELEGRAM_CHANNEL_ID = '@TESTGOLDNERKH'
-
-# API URL and Token
-API_URL = 'https://api.navasan.tech/latest/'
-API_KEY = 'freelbcAuqWDjWieRxVjpYKckVmOk3ug'
-
-# Function to fetch data from the API
-def fetch_gold_prices():
-    try:
-        response = requests.get(API_URL, params={'api_key': API_KEY})
-        if response.status_code == 200:
-            data = response.json()
-            return data
-        else:
-            print(f"Error fetching data: {response.status_code}")
-            return None
-    except Exception as e:
-        print(f"Exception occurred: {e}")
-        return None
-
-# Function to format the message
-def format_message(data):
-    now = datetime.now()
-    persian_date = data.get('jalaliDate', 'N/A')
-    gregorian_date = now.strftime('%Y-%m-%d')
-    time_now = now.strftime('%H:%M:%S')
-
-    message = f"🏛️ مجموعه طلای دیوان سالار 🏛️\n\n"
-    message += f"ساعت : {time_now}\n"
-    message += f"تاریخ : {persian_date} (شمسی)\n"
-    message += f"تاریخ : {gregorian_date} (میلادی)\n\n"
-
-    rates = {
-        'طلای 18 عیار هر گرم': data.get('gold_18', 'N/A'),
-        'مثقال طلای آبشده': data.get('gold_mithqal', 'N/A'),
-        'دلار آمریکا': data.get('usd_buy', 'N/A'),
-        'درهم امارات 🇦🇪': data.get('aed_buy', 'N/A'),
-        'سکه امامی': data.get('emami', 'N/A'),
-        'سکه بهار آزادی': data.get('bahar', 'N/A'),
-        'نیم سکه': data.get('nim', 'N/A'),
-        'ربع سکه': data.get('rob', 'N/A')
+<?php
+// channel  https://t.me/netcopy
+// website https://netcopy.ir
+ob_start();
+error_reporting(0);
+define('API_KEY', "666666666:AAFUfdxj5OQJ7OrgF2cIesTHNEaAo0oJGuc");// توکن
+$channel = 'https://t.me/TESTGOLDNERKH';//---- ایدی کانال
+$admin =https://t.me/mohammadmahdiahm; ///---- ایدی ادمین
+function bot($method, $datas = []) {
+    $url = "https://api.telegram.org/bot" . API_KEY . "/" . $method;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $datas);
+    $res = curl_exec($ch);
+    if (curl_error($ch)) {
+        var_dump(curl_error($ch));
+    } else {
+        return json_decode($res);
     }
+}
+// channel  https://t.me/netcopy
+// website https://netcopy.ir
+function SendMessage($chat_id, $text, $mode = null, $reply=null, $keyboard = null) {
+    bot('SendMessage', ['chat_id' => $chat_id, 'text' => $text, 'parse_mode' => $mode, 'reply_to_message_id' => $reply, 'reply_markup' => $keyboard]);
+}
+function SendPhoto($chatid, $photo, $caption = null, $keyboard = null) {
+    bot('SendPhoto', ['chat_id' => $chatid, 'photo' => $photo, 'caption' => $caption, 'parse_mode' => 'HTML',	'reply_markup' => $keyboard]);
+}
+function EditMsg1($chatid, $msgid, $text, $keyboard = null) {
+    bot('EditMessageText', ['chat_id' => $chatid, 'message_id' => $msgid, 'text' => $text, 'reply_markup' => $keyboard]);
+}
+function EditMsg($chat_id, $text, $mode, $msg_id, $keyboard = null) {
+    bot('EditMessageText', ['chat_id' => $chat_id, 'message_id' => $msg_id, 'text' => $text, 'parse_mode' => $mode, 'reply_markup' => $keyboard]);
+}
+function Forward($chat_id, $from_id, $massege_id) {
+    bot('ForwardMessage', ['chat_id' => $chat_id, 'from_chat_id' => $from_id, 'message_id' => $massege_id]);
+}
+function objectToArrays($object) {
+    if (!is_object($object) && !is_array($object)) {
+        return $object;
+    }
+    if (is_object($object)) {
+        $object = get_object_vars($object);
+    }
+    return array_map("objectToArrays", $object);
+}
+// [ Variables section ] . [ end functions , start Variables ]
+$update = json_decode(file_get_contents('php://input'));
+$message = $update->message;
+$chat_id = $message->chat->id;
+$text = $message->text;
+$message_id = $update->message->message_id;
+$from_id = $message->from->id;
+$name = $message->from->first_name;
+$lastname = $message->from->last_name;
+$username = $message->from->username;
+$data = $update->callback_query->data;
+$dataa = explode('|', $data); 
+$chatid = $update->callback_query->message->chat->id;
+$fromid = $update->callback_query->from->id;
+$messageid = $update->callback_query->message->message_id;
+$photo = $update->message->photo;
+$now = date('h:i:s');
 
-    for key, value in rates.items():
-        message += f"{key} : {value} تومان\n"
+if (!is_dir("data")) {
+    mkdir("data");
+}
 
-    return message
+$user = json_decode(file_get_contents("data/user.json"), true);
+$alluser = $user['users'];
+$userinfo = json_decode(file_get_contents("data/data.json"), true);
+$ban = $userinfo[$from_id]['ban'];
+$step = $userinfo[$from_id]['step'];
+// channel  https://t.me/netcopy
+// website https://netcopy.ir
+$get = json_decode(file_get_contents("https://api.telegram.org/bot" . API_KEY . "/getChatMember?chat_id=$channel&user_id=$from_id"), true);
+$rank = $get['result']['status'];
+// channel  https://t.me/netcopy
+// website https://netcopy.ir
+// [ end Force/Rank channel ] . [ start keyboards ]
+$start = json_encode(['resize_keyboard' => true, 'inline_keyboard' => [[['text' => "دریافت ارز کشوری", 'callback_data' => "Country"]], [['text' => " راهنمای استفاده", 'callback_data' => "help"]], [['text' => "درباره ما", 'callback_data' => "us"]], ]]);
+$back1 = json_encode(['resize_keyboard' => true, 'inline_keyboard' => [[['text' => "بازگشت", 'callback_data' => "back1"]], ]]);
+$panel = json_encode(['keyboard' => [[['text' => "آمار"]], [['text' => "فروارد همگانی"], ['text' => "ارسال همگانی"]], [['text' => "حذف مسدود کاربر"], ['text' => "مسدود کاربر"]], ], 'resize_keyboard' => true]);
+$arz=json_decode(file_get_contents("https://kashanaki.ir/we/arz/arz.php"),true);
+$yoro=$arz['0']['price'];
+$emarat=$arz['1']['price'];
+$swead=$arz['2']['price'];
+$norway=$arz['3']['price'];
+$iraq=$arz['4']['price'];
+$swit=$arz['5']['price'];
+$armanestan=$arz['6']['price'];
+$gorgea=$arz['7']['price'];
+$pakestan=$arz['8']['price'];
+$soudi=$arz['9']['price'];
+$russia=$arz['10']['price'];
+$india=$arz['11']['price'];
+$kwait=$arz['12']['price'];
+$astulia=$arz['13']['price'];
+$oman=$arz['14']['price'];
+$qatar=$arz['15']['price'];
+$kanada=$arz['16']['price'];
+$tailand=$arz['17']['price'];
+$turkye=$arz['18']['price'];
+$england=$arz['19']['price'];
+$hong=$arz['20']['price'];
+$azarbayjan=$arz['21']['price'];
+$malezy=$arz['22']['price'];
+$danmark=$arz['23']['price'];
+$newzland=$arz['24']['price'];
+$china=$arz['25']['price'];
+$japan=$arz['26']['price'];
+$bahrin=$arz['27']['price'];
+$souria=$arz['28']['price'];
+$dolar=$arz['29']['price'];
+$talaa=json_decode(file_get_contents("https://kashanaki.ir/we/arz/tala.php"),true);
+$tala=$talaa['4']['price'];
+$nogre=$talaa['5']['price'];
+$emami=$talaa['0']['price'];
+$nim=$talaa['1']['price'];
+$rob=$talaa['2']['price'];
+$geram=$talaa['3']['price'];
+$bahar=$talaa['6']['price'];
+if (!in_array($from_id, $user["users"])) {
+    $user["users"][] = "$from_id";
+    $user = json_encode($user, true);
+    file_put_contents("data/user.json", $user);
+    $userinfo[$from_id]['step'] = "none";
+    $userinfo[$from_id]['ban'] = "false";
+    file_put_contents("data/data.json", json_encode($userinfo));
+}
+if ($ban == 'true') {
+    exit();
+}
+if ($rank == 'left') {
+    SendMessage($chat_id, "■ برای استفاده از ربات و همچنین حمایت از ما ابتدا وارد کانال\n● $channel\n■ سپس به ربات برگشته و /start را بزنید.", null, $message_id, json_encode(['KeyboardRemove' => [], 'remove_keyboard' => true]));
+}
+if ($text == "/start" and $rank != 'left') {
+    $userinfo[$from_id]['step'] = "none";
+    file_put_contents("data/data.json", json_encode($userinfo));
+bot('sendmessage',[
+'chat_id'=>$chat_id,
+'text'=>"سلام $name عزیز 😃
+📶 به ربات نرخ لحظه ای طلا و ارز و... خوش امدید
+🌟 به وسیله این ربات میتونی از اخرین قیمت های دلار و ارز های مختلف و کلی چیزای دیگه مطلع بشی 
+🎈 برای شروع کافیه از دکمه های زیر استفاده کنی",
+'parse_mode'=>"html",
+'reply_markup'=>json_encode(['keyboard'=>[
+    [['text'=>"💶 قیمت ارز"]],
+    [['text'=>"🏵 قیمت طلا"],['text'=>"💰 قیمت سکه"]],
+],
+    'resize_keyboard'=>true,
+    ])
+]);
+}
+elseif($text=="💶 قیمت ارز"){
+bot('sendmessage',[
+'chat_id'=>$chat_id,
+'text'=>"💵 قیمت ارز های کشور های مختلف:
 
-# Function to send message to Telegram channel
-def send_to_telegram(message):
-    try:
-        bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
-        bot.send_message(chat_id=TELEGRAM_CHANNEL_ID, text=message)
-        print("Message sent to Telegram channel.")
-    except Exception as e:
-        print(f"Failed to send message: {e}")
+🇪🇺 یورو : `$yoro`
+------
+🇺🇸 دلار : `$dolar`
+------
+🇦🇪درهم امارات  : `$emarat`
+------
+🇸🇪 کرون سوئد : `$swead`
+------
+🇳🇴 کرون نروژ : `$norway`
+------
+🇮🇶 دینار عراق : `$iraq`
+------
+🇨🇭فرانک سوئیس : `$swit`
+------
+🇦🇲 درام ارمنستان : `$armanestan`
+------
+🇬🇪لاری گرجستان : `$gorgea`
+------
+🇵🇰 روپیه پاکستان : `$pakestan`
+------
+🇷🇺 روبل روسیه : `$russia`
+------
+🇮🇳 روپیه هندوستان : `$india`
+------
+🇰🇼 دینار کویت : `$kwait`
+------
+🇦🇺 دلار استرلیا : `$astulia`
+------
+🇴🇲 ریال عمان : `$oman`
+------
+🇶🇦 ریال قطر : `$qatar`
+------
+🇨🇦 دلار کانادا : `$kanada`
+------
+🇹🇭بات تایلند : `$tailand`
+------
+🇹🇷 لیر ترکیه : `$turkye`
+------
+🇬🇧 پوند انگلیس : `$england`
+------
+🇭🇰 دلار هنگ کنگ : `$hong`
+------
+🇦🇿 منات اذربایجان : `$azarbayjan`
+------
+🇲🇾رینگیت مالزی : `$malezy`
+------
+🇩🇰 کرون دانمارک : `$danmark`
+------
+🇳🇿 دلار نیوزلند : `$newzland`
+------
+🇨🇳 یوان چین : `$china`
+------
+🇯🇵 ین ژآپن : `$japan`
+------
+🇧🇭 دینار بحرین : `$bahrin`
+------
+🇸🇾 لیر سوریه : `$souria`
+",
+'parse_mode'=>"MARKDOWN",
+'reply_markup'=>json_encode(['inline_keyboard'=>[[['text'=>"🌟اشتراک ",'switch_inline_query'=>""]]],
+    ])
+    ]);
+}
+// channel  https://t.me/netcopy
+// website https://netcopy.ir
+elseif($text=="🏵 قیمت طلا"){
+bot('sendmessage',[
+'chat_id'=>$chat_id,
+'text'=>"🏵قیمت طلا و نقره به دلار :
 
-# Main loop to fetch and send data every 10 minutes
-def main():
-    while True:
-        data = fetch_gold_prices()
-        if data:
-            message = format_message(data)
-            send_to_telegram(message)
-        time.sleep(600)  # Wait for 10 minutes
+🥇انس طلا : `$tala`
+------
+🥈انس نقره : `$nogre`
+",
+'parse_mode'=>"MARKDOWN",
+'reply_markup'=>json_encode(['inline_keyboard'=>[[['text'=>"🌟اشتراک ",'switch_inline_query'=>""]]],
+    ])
+    ]);
+}
+// channel  https://t.me/netcopy
+// website https://netcopy.ir
+elseif($text=="💰 قیمت سکه"){
+bot('sendmessage',[
+'chat_id'=>$chat_id,
+'text'=>"🏅قیمت سکه به تومان :
 
-if __name__ == "__main__":
-    main()
+💰سکه گرمی : `$geram`
+------
+💰ربع سکه : `$rob`
+------
+💰نیم سکه : `$nim`
+------
+💰سکه بهار آزادی :  `$bahar`
+------
+💰سکه امامی : `$emami`
+",
+'parse_mode'=>"MARKDOWN",
+'reply_markup'=>json_encode(['inline_keyboard'=>[[['text'=>"🌟اشتراک ",'switch_inline_query'=>""]]],
+    ])
+    ]);
+}
+// channel  https://t.me/netcopy
+// website https://netcopy.ir
+elseif($inline==""){
+    bot('answerInlineQuery', [
+        'inline_query_id' => $up['inline_query']['id'],
+        'results' => json_encode([[
+            'type' => 'article',
+            'id' => base64_encode(rand(5,555)),
+            'thumb_url'=>"https://r2f.ir/web/BgvOnAb4.jpg",
+            'title' => "ارسال نرخ ارز",
+            'description'=>"ارسال نرخ ارز به این چت",
+            'input_message_content'=>[
+            'parse_mode' => 'html', 
+            'message_text' => "$currency"],
+'reply_markup'=>[
+'inline_keyboard'=>[[["text"=>"🔹ورود به ربات"]],[["text"=>"🌟اشتراک",'switch_inline_query'=>""]]]]
+         ],[
+            'type' => 'article',
+            'id' => base64_encode(rand(5,555)),
+           'thumb_url'=>"https://r2f.ir/web/BgvOnAb4.jpg",
+            'title' => "ارسال نرخ طلا",
+            'description'=>"ارسال نرخ طلا به این چت",
+            'input_message_content'=>[
+            'parse_mode' => 'html', 
+            'message_text' => "$gold"],
+'reply_markup'=>[
+'inline_keyboard'=>[[["text"=>"🔹ورود به ربات",'url'=>"https://t.me/oj_arzbot"]],[["text"=>"🌟اشتراک",'switch_inline_query'=>""]]]]
+        ],[
+            'type' => 'article',
+            'id' => base64_encode(rand(5,555)),
+            'thumb_url'=>"https://r2f.ir/web/BgvOnAb4.jpg",
+            'title' => "ارسال نرخ سکه",
+            'description'=>"ارسال نرخ سکه به این چت",
+            'input_message_content'=>[
+            'parse_mode' => 'html', 
+            'message_text' => "$coin"],
+'reply_markup'=>[
+'inline_keyboard'=>[[["text"=>"🔹ورود به ربات",'url'=>"https://t.me/oj_arzbot"]],[["text"=>"🌟اشتراک",'switch_inline_query'=>""]]]]]
+        ])
+        ]);
+}
+if ($text == 'oj' or $text == '↜بازگشت') {
+    if ($from_id == $admin) {
+        $userinfo[$from_id]['step'] = "none";
+        file_put_contents("data/data.json", json_encode($userinfo));
+        SendMessage($chat_id, " به پنل مدیریت خوش آمدید", 'MarkDown', $message_id, $panel);
+    }
+}
+if ($text == 'آمار' and $from_id == $admin) {
+    $mmemcount = count($user['users']) - 1;
+    SendMessage($chat_id, "■ تعداد کل اعضای ربات : *$mmemcount*", 'MarkDown', $message_id);
+}
+// channel  https://t.me/netcopy
+// website https://netcopy.ir
+if ($text == 'ارسال همگانی' and $from_id == $admin) {
+    $userinfo[$from_id]['step'] = "s2all";
+    file_put_contents("data/data.json", json_encode($userinfo));
+    SendMessage($chat_id, "■ پیام مورد نظر را ارسال کنید", 'MarkDown', $message_id, $back_panel);
+}
+if ($step == "s2all") {
+    $userinfo[$from_id]['step'] = "none";
+    file_put_contents("data/data.json", json_encode($userinfo));
+    while ($z <= count($alluser)) {
+        $z++;
+        SendMessage($alluser[$z - 1], $text);
+    }
+    SendMessage($chat_id, "■ پیام به تمامی اعضا ارسال شد", 'MarkDown', $message_id, $panel);
+}
+if ($text == 'فروارد همگانی' and $from_id == $admin) {
+    $userinfo[$from_id]['step'] = "f2all";
+    file_put_contents("data/data.json", json_encode($userinfo));
+    SendMessage($chat_id, "■ پیام مورد نظر را فروارد کنید", 'MarkDown', $message_id, $back_panel);
+}
+if ($step == "f2all") {
+    $userinfo[$from_id]['step'] = "none";
+    file_put_contents("data/data.json", json_encode($userinfo));
+    while ($z <= count($alluser)) {
+        $z++;
+        Forward($alluser[$z - 1], $chat_id, $message_id);
+    }
+    SendMessage($chat_id, "■ پیام به تمامی اعضا فروارد شد", 'MarkDown', $message_id, $panel);
+}
+//------------------------------------------------------------------------------
+if ($text == 'مسدود کاربر' and $from_id == $admin) {
+    $userinfo[$from_id]['step'] = "ban";
+    file_put_contents("data/data.json", json_encode($userinfo));
+    SendMessage($chat_id, "■ آیدی کاربر جهت محروم شدن از ربات را ارسال کنید", 'MarkDown', $message_id, $back_panel);
+}
+if ($step == "ban") {
+    $userinfo[$from_id]['step'] = "none";
+    $userinfo[$text]['ban'] = "true";
+    file_put_contents("data/data.json", json_encode($userinfo));
+    SendMessage($chat_id, "■ کاربر `$text` از ربات مسدود شد!", 'MarkDown', $message_id, $panel);
+}
+if ($text == 'حذف مسدود کاربر' and $from_id == $admin) {
+    $userinfo[$from_id]['step'] = "unban";
+    file_put_contents("data/data.json", json_encode($userinfo));
+    SendMessage($chat_id, "■ آیدی کاربر جهت خارج کردن از محرومیت ربات را ارسال کنید", 'MarkDown', $message_id, $back_panel);
+}
+if ($step == "unban") {
+    $userinfo[$from_id]['step'] = "none";
+    $userinfo[$text]['ban'] = "false";
+    file_put_contents("data/data.json", json_encode($userinfo));
+    SendMessage($chat_id, "■ کاربر `$text` از مسدودیت خارج گردید", 'MarkDown', $message_id, $panel);
+}
+// channel  https://t.me/netcopy
+// website https://netcopy.ir
